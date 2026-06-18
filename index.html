@@ -4,10 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>HSK 1 NEW3.0 - Lesson 15</title>
+    <!-- 使用稳定的 CDN 源，避免解析错误和网络加载问题 -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.22.20/babel.min.js"></script>
     <style>
         body {
             background-color: #0f172a;
@@ -60,8 +61,14 @@
     </style>
 </head>
 <body>
-    <div id="root"></div>
+    <!-- 添加加载提示，避免初始黑屏 -->
+    <div id="root">
+        <div style="text-align: center; margin-top: 20vh; color: #818cf8; font-size: 1.5rem; font-family: sans-serif;">
+            Yuklanmoqda... / 加载中，请稍候...
+        </div>
+    </div>
 
+    <!-- 恢复标准的 text/babel，去除导致模块冲突的属性 -->
     <script type="text/babel">
         const { useState, useEffect } = React;
 
@@ -425,9 +432,10 @@
             const [answers, setAnswers] = useState({});
 
             const handleSelect = (idx, value, blankIndex = 0) => {
+                const key = `${idx}-${blankIndex}`;
                 setAnswers(prev => ({
                     ...prev,
-                    [`${idx}-${blankIndex}`]: value
+                    [key]: value
                 }));
             };
 
@@ -437,7 +445,13 @@
                     <div className="space-y-6">
                         {fillBlanksData.map((item, i) => {
                             const isMultiple = item.multiple;
+                            // 提取 key，避免直接在 JSX className 中使用嵌套的模板字符串以防止编译解析错误
+                            const key0 = `${i}-0`;
+                            const key1 = `${i}-1`;
                             
+                            const selectClass0 = `bg-indigo-900/80 border ${answers[key0] === item.blank ? 'border-emerald-500 text-emerald-300' : 'border-white/20 text-indigo-200'} rounded-lg px-3 py-1 outline-none text-center cursor-pointer appearance-none min-w-[80px]`;
+                            const selectClass1 = `bg-indigo-900/80 border ${answers[key1] === item.blank ? 'border-emerald-500 text-emerald-300' : 'border-white/20 text-indigo-200'} rounded-lg px-3 py-1 outline-none text-center cursor-pointer appearance-none min-w-[80px]`;
+
                             return (
                                 <div key={i} className="flex flex-col gap-2 bg-white/5 p-4 rounded-xl text-white">
                                     <div className="flex flex-wrap items-center gap-3 text-xl">
@@ -445,8 +459,8 @@
                                         <span>{item.text[0]}</span>
                                         
                                         <select 
-                                            className={`bg-indigo-900/80 border ${answers[`${i}-0`] === item.blank ? 'border-emerald-500 text-emerald-300' : 'border-white/20 text-indigo-200'} rounded-lg px-3 py-1 outline-none text-center cursor-pointer appearance-none min-w-[80px]`}
-                                            value={answers[`${i}-0`] || ""}
+                                            className={selectClass0}
+                                            value={answers[key0] || ""}
                                             onChange={(e) => handleSelect(i, e.target.value, 0)}
                                         >
                                             <option value="" disabled>-</option>
@@ -460,8 +474,8 @@
                                         {isMultiple && (
                                             <>
                                                 <select 
-                                                    className={`bg-indigo-900/80 border ${answers[`${i}-1`] === item.blank ? 'border-emerald-500 text-emerald-300' : 'border-white/20 text-indigo-200'} rounded-lg px-3 py-1 outline-none text-center cursor-pointer appearance-none min-w-[80px]`}
-                                                    value={answers[`${i}-1`] || ""}
+                                                    className={selectClass1}
+                                                    value={answers[key1] || ""}
                                                     onChange={(e) => handleSelect(i, e.target.value, 1)}
                                                 >
                                                     <option value="" disabled>-</option>
@@ -475,20 +489,20 @@
                                         
                                         {/* Feedback Icons */}
                                         <div className="ml-auto flex-shrink-0">
-                                            {answers[`${i}-0`] && (answers[`${i}-0`] === item.blank ? <CheckIcon/> : <XIcon/>)}
+                                            {answers[key0] && (answers[key0] === item.blank ? <CheckIcon/> : <XIcon/>)}
                                         </div>
                                     </div>
                                     {item.pinyin && (
                                         <div className="flex flex-wrap items-center gap-2 text-base text-indigo-300 font-mono md:ml-6 mt-1 opacity-90">
                                             <span>{item.pinyin[0]}</span>
                                             <span className="min-w-[80px] border-b border-indigo-300/50 text-center inline-block text-indigo-200 px-2 pb-0.5">
-                                                {answers[`${i}-0`] ? getPinyin(answers[`${i}-0`]) : '___'}
+                                                {answers[key0] ? getPinyin(answers[key0]) : '___'}
                                             </span>
                                             <span>{item.pinyin[1]}</span>
                                             {isMultiple && (
                                                 <>
                                                     <span className="min-w-[80px] border-b border-indigo-300/50 text-center inline-block text-indigo-200 px-2 pb-0.5">
-                                                        {answers[`${i}-1`] ? getPinyin(answers[`${i}-1`]) : '___'}
+                                                        {answers[key1] ? getPinyin(answers[key1]) : '___'}
                                                     </span>
                                                     <span>{item.pinyin[2]}</span>
                                                 </>
